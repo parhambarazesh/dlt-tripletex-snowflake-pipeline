@@ -1,7 +1,6 @@
 from typing import Any, Optional
 
 import dlt
-from dlt.common.pendulum import pendulum
 from dlt.sources.rest_api import (
     RESTAPIConfig,
     rest_api_resources,
@@ -19,6 +18,14 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
             "headers": {
                 "Accept": "application/json"
             },
+            # offset-based paginator for Tripletex: `from` = start index, `count` = page size
+            "paginator": {
+                "type": "offset",
+                "offset":0,
+                "offset_param": "from",
+                "limit_param": "count",
+                "limit": 10,
+            },
             # we add an auth config if the auth token is present
             "auth": (
                 {
@@ -32,16 +39,16 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
             ),
         },
         # The default configuration for all resources and their endpoints
-        "resource_defaults": {
-            "primary_key": "id",
-            "write_disposition": "merge",
-            "endpoint": {
-                "params": {
-                    "per_page": 100,
-                },
-            },
-        },
-        # resources can be specified as simple endpoint paths
+        # "resource_defaults": {
+        #     "primary_key": "id",
+        #     "write_disposition": "merge",
+        #     "endpoint": {
+        #         "params": {
+        #             # Tripletex uses 'from' and 'count' handled by paginator; keep other params here if needed
+        #         },
+        #     },
+        # },
+        # resources specified as endpoint strings (dlt expected type)
         "resources": [
             {
                 "name":"customers",
