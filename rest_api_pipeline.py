@@ -4,23 +4,26 @@ import dlt
 from dlt.common.pendulum import pendulum
 from dlt.sources.rest_api import (
     RESTAPIConfig,
-    check_connection,
     rest_api_resources,
-    rest_api_source,
 )
 
 
 @dlt.source(name="tripletex")
 def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
-    # Create a REST API configuration for the GitHub API
+    # Create a REST API configuration for the Tripletex API
     # Use RESTAPIConfig to get autocompletion and type checking
     config: RESTAPIConfig = {
         "client": {
-            "base_url": "https://api-test.tripletex.tech/",
+            "base_url": "https://api-test.tripletex.tech/v2",
+            # default headers used for all requests
+            "headers": {
+                "Accept": "application/json"
+            },
             # we add an auth config if the auth token is present
             "auth": (
                 {
-                    "type": "basic",
+                    # dlt expects the HTTP Basic auth type to be named 'http_basic'
+                    "type": "http_basic",
                     "username": "0",
                     "password": access_token
                 }
@@ -38,56 +41,15 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
                 },
             },
         },
+        # resources can be specified as simple endpoint paths
         "resources": [
-            # This is a simple resource definition,
-            # that uses the endpoint path as a resource name:
-            # "pulls",
-            # Alternatively, you can define the endpoint as a dictionary
-            # {
-            #     "name": "pulls", # <- Name of the resource
-            #     "endpoint": "pulls",  # <- This is the endpoint path
-            # }
-            # Or use a more detailed configuration:
             {
-                "name": "issues",
-                "endpoint": {
-                    "path": "issues",
-                    # Query parameters for the endpoint
-                    "params": {
-                        "sort": "updated",
-                        "direction": "desc",
-                        "state": "open",
-                        # Define `since` as a special parameter
-                        # to incrementally load data from the API.
-                        # This works by getting the updated_at value
-                        # from the previous response data and using this value
-                        # for the `since` query parameter in the next request.
-                        "since": "{incremental.start_value}",
-                    },
-                    # For incremental to work, we need to define the cursor_path
-                    # (the field that will be used to get the incremental value)
-                    # and the initial value
-                    "incremental": {
-                        "cursor_path": "updated_at",
-                        "initial_value": pendulum.today().subtract(days=30).to_iso8601_string(),
-                    },
-                },
+                "name":"customers",
+                "endpoint":"customer",
             },
-            # The following is an example of a resource that uses
-            # a parent resource (`issues`) to get the `issue_number`
-            # and include it in the endpoint path:
             {
-                "name": "issue_comments",
-                "endpoint": {
-                    # The placeholder `{resources.issues.number}`
-                    # will be replaced with the value of `number` field
-                    # in the `issues` resource data
-                    "path": "issues/{resources.issues.number}/comments",
-                },
-                # Include data from `id` field of the parent resource
-                # in the child data. The field name in the child data
-                # will be called `_issues_id` (_{resource_name}_{field_name})
-                "include_from_parent": ["id"],
+                "name":"contacts",
+                "endpoint":"contact"
             },
         ],
     }
