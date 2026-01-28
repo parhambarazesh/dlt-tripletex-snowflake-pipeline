@@ -9,46 +9,28 @@ from dlt.sources.rest_api import (
 
 @dlt.source(name="tripletex")
 def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
-    # Create a REST API configuration for the Tripletex API
-    # Use RESTAPIConfig to get autocompletion and type checking
     config: RESTAPIConfig = {
         "client": {
             "base_url": "https://api-test.tripletex.tech/v2",
-            # default headers used for all requests
-            "headers": {
-                "Accept": "application/json"
-            },
-            # offset-based paginator for Tripletex: `from` = start index, `count` = page size
-            "paginator": {
-                "type": "offset",
-                "offset":0,
-                "offset_param": "from",
-                "limit_param": "count",
-                "limit": 10,
-            },
-            # we add an auth config if the auth token is present
+            "headers": {"Accept": "application/json"},
             "auth": (
                 {
-                    # dlt expects the HTTP Basic auth type to be named 'http_basic'
                     "type": "http_basic",
                     "username": "0",
-                    "password": access_token
+                    "password": access_token,
                 }
                 if access_token
                 else None
             ),
+            "paginator":{
+                "type": "offset",
+                "offset": 0,
+                "offset_param": "from",
+                "limit_param": "count",
+                "limit": 100,
+                "total_path": "fullResultSize",
+            }
         },
-        # The default configuration for all resources and their endpoints
-        # "resource_defaults": {
-        #     "primary_key": "id",
-        #     "write_disposition": "merge",
-        #     "endpoint": {
-        #         "params": {
-        #             # Tripletex uses 'from' and 'count' handled by paginator; keep other params here if needed
-        #         },
-        #     },
-        # },
-        # resources specified as endpoint strings (dlt expected type)
         "resources": [
             {
                 "name":"customers",
