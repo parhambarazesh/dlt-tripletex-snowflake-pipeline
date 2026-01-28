@@ -35,10 +35,21 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
             {
                 "name":"customers",
                 "endpoint":"customer",
+                "columns": {
+                    "account_manager": {"data_type": "text"},
+                    "department": {"data_type": "text"},
+                    "delivery_address": {"data_type": "text"},
+                    "category1": {"data_type": "text"},
+                    "category2": {"data_type": "text"},
+                    "category3": {"data_type": "text"}
+                },
             },
             {
                 "name":"contacts",
-                "endpoint":"contact"
+                "endpoint":"contact",
+                "columns": {
+                    "department": {"data_type": "text"}
+                },
             },
         ],
     }
