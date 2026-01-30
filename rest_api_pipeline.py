@@ -36,6 +36,21 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
         "paginator": paginator_cfg,
     }
 
+    """
+    set "write_disposition": "merge" if:
+    - entities are mutable
+    - you don't care about historical changes
+    - you want idempotency
+    - you want safe re-runs
+    - does stage updates
+    - must have primary_key set: "primary_key": "id",
+    set "write_disposition": "append" if:
+    - entities are immutable
+    - you only fetch new data
+    - you dont care about duplicates
+    - you don't care about idempotency
+    - does not stage updates
+    """
     resources: List[EndpointResource] = [
         {
             "name": "customers",
@@ -48,11 +63,13 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
                 "category2": {"data_type": "text"},
                 "category3": {"data_type": "text"},
             },
+            "write_disposition": "append",
         },
         {
             "name": "contacts",
             "endpoint": "contact",
             "columns": {"department": {"data_type": "text"}},
+            "write_disposition": "append",
         },
     ]
 
@@ -69,6 +86,7 @@ def load_tripletex() -> None:
         pipeline_name="rest_api_tripletex",
         destination="snowflake",
         dataset_name="tripletex_data",
+        # dev_mode=True,
     )
 
     load_info = pipeline.run(tripletex_source())
