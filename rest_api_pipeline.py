@@ -63,13 +63,13 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
                 "category2": {"data_type": "text"},
                 "category3": {"data_type": "text"},
             },
-            "write_disposition": "append",
+            "write_disposition": "merge",
         },
         {
             "name": "contacts",
             "endpoint": "contact",
             "columns": {"department": {"data_type": "text"}},
-            "write_disposition": "append",
+            "write_disposition": "merge",
         },
     ]
 
