@@ -63,12 +63,17 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
                 "category2": {"data_type": "text"},
                 "category3": {"data_type": "text"},
             },
+            "primary_key": "id",
             "write_disposition": "merge",
         },
         {
             "name": "contacts",
             "endpoint": "contact",
-            "columns": {"department": {"data_type": "text"}},
+            "columns": {
+                "department": {"data_type": "text"},
+                "customer": {"data_type": "text"},
+            },
+            "primary_key": "id",
             "write_disposition": "merge",
         },
     ]
@@ -83,9 +88,9 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
 
 def load_tripletex() -> None:
     pipeline = dlt.pipeline(
-        pipeline_name="rest_api_tripletex",
+        pipeline_name="tripletex",
         destination="snowflake",
-        dataset_name="tripletex_data",
+        dataset_name="tripletex_dataset",
         # dev_mode=True,
     )
 
