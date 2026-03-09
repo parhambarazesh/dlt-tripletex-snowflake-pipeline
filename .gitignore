@@ -204,3 +204,7 @@ __marimo__/
 
 # macOS
 .DS_Store
+.dlt/rsa_key.p8
+TT_get_customer.py
+TT_login.py
+=1.21.0
