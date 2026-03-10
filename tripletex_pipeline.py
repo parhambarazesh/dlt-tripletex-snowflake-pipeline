@@ -51,10 +51,27 @@ def tripletex_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
     - you don't care about idempotency
     - does not stage updates
     """
+    def _tripletex_datetime(value: Any) -> Any:
+        """Format dlt incremental state as Tripletex-compatible ISO-8601 datetime."""
+        if value is None:
+            return value
+        return str(value).replace("+00:00", "Z")
+
     resources: List[EndpointResource] = [
         {
             "name": "customers",
-            "endpoint": "customer",
+            "endpoint": {
+                "path": "customer",
+                # Expose change history so the cursor can track the latest update timestamp.
+                "params": {"fields": "*,changes"},
+                "incremental": {
+                    "start_param": "changedSince",
+                    "cursor_path": "changes[-1].date",
+                    "initial_value": "1970-01-01T00:00:00Z",
+                    "on_cursor_value_missing": "include",
+                    "convert": _tripletex_datetime,
+                },
+            },
             "columns": {
                 "account_manager": {"data_type": "text"},
                 "department": {"data_type": "text"},
